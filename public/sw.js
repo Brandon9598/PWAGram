@@ -1,6 +1,8 @@
+// REFERENCE: 
+// * https://angular.io/guide/service-worker-config
 
-var CACHE_STATIC_NAME = 'static-v3';
-var CACHE_DYNAMIC_NAME = 'dynamic-v3';
+var CACHE_STATIC_NAME = 'static-v4';
+var CACHE_DYNAMIC_NAME = 'dynamic-v4';
 
 self.addEventListener('install', function(event) {
   console.log('[Service Worker] Installing Service Worker ...', event);
@@ -44,32 +46,77 @@ self.addEventListener('activate', function(event) {
   return self.clients.claim();
 });
 
-// Cache with network fallback
+
+// Cache, then populate with network
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        if (response) {
-          return response;
-        } else {
-          return fetch(event.request)
-            .then(function(res) {
-              return caches.open(CACHE_DYNAMIC_NAME)
-                .then(function(cache) {
-                  cache.put(event.request.url, res.clone());
-                  return res;
+    var url = 'https://httpbin.org/get';
+    // Cache, then network part for a specific url where we get our feed
+    if(event.request.url.indexOf(url) > -1){
+        event.respondWith(
+            caches.open(CACHE_DYNAMIC_NAME)
+                .then(function(cache){
+                    return fetch(event.request)
+                        .then(function(res){
+                            cache.put(event.request, res.clone());
+                            return res;
+                        });
                 })
-            })
-            .catch(function(err) {
-              return caches.open(CACHE_STATIC_NAME)
-                .then(function(cache) {
-                  return cache.match('/offline.html');
-                });
-            });
+        );
+    } 
+    else 
+    {
+        // Use cache with network fallback for all other parts of the website 
+        event.respondWith(
+            caches.match(event.request)
+                .then(function(response) {
+                if (response) {
+                    return response;
+                } else {
+                    return fetch(event.request)
+                    .then(function(res) {
+                        return caches.open(CACHE_DYNAMIC_NAME)
+                        .then(function(cache) {
+                            cache.put(event.request.url, res.clone());
+                            return res;
+                        })
+                    })
+                    .catch(function(err) {
+                        return caches.open(CACHE_STATIC_NAME)
+                        .then(function(cache) {
+                            return cache.match('/offline.html');
+                        });
+                    });
+                }
+            }) );
         }
-      })
-  );
 });
+
+// Cache with network fallback
+// self.addEventListener('fetch', function(event) {
+//   event.respondWith(
+//     caches.match(event.request)
+//       .then(function(response) {
+//         if (response) {
+//           return response;
+//         } else {
+//           return fetch(event.request)
+//             .then(function(res) {
+//               return caches.open(CACHE_DYNAMIC_NAME)
+//                 .then(function(cache) {
+//                   cache.put(event.request.url, res.clone());
+//                   return res;
+//                 })
+//             })
+//             .catch(function(err) {
+//               return caches.open(CACHE_STATIC_NAME)
+//                 .then(function(cache) {
+//                   return cache.match('/offline.html');
+//                 });
+//             });
+//         }
+//       })
+//   );
+// });
 
 // Cache only strategy
 // self.addEventListener('fetch', function(event) {
@@ -100,6 +147,6 @@ self.addEventListener('fetch', function(event) {
 
 // Cache, then Network
 // Always present something to user super fast
-self.addEventListener('fetch', function(event){
+// self.addEventListener('fetch', function(event){
     
-})
+// })
