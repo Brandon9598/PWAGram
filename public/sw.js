@@ -12,6 +12,5 @@ self.addEventListener('activate', function(event){
 
 //  Triggered by the web application
 self.addEventListener('fetch', function(event){
-    console.log('[Service Worker] Fetching something', event);
     event.respondWith(fetch(event.request));
 });
