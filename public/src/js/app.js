@@ -50,21 +50,67 @@ function displayConfirmationNotification(){
   } 
 }
 
+function configurePushSub(){
+  if(!('serviceWorker' in navigator)){
+    return;
+  } 
+
+  var reg;
+  navigator.serviceWorker.ready
+    .then(function(swreg){
+      reg = swreg;
+      return swreg.pushManager.getSubscription();
+    })
+    .then(function(sub){
+      if(sub === null){
+        // Create a new subscription
+        var vapidPublicKey = 'BAFLzbBdZbMXrOeQA4CwwbfUKe8g1u4MkMrO-46uehDP2vUzcdNcqzQUyLqcrtwHzoKSAGS_LobRXPRqPFrDtgQ'
+        var convertedVapidPublicKey = urlBase64ToUint8Array(vapidPublicKey);
+        return reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedVapidPublicKey
+        });
+      } else {
+        // we have a subscription
+
+      }
+    })
+    .then(function(newSub){
+      return fetch('https://pwagram-efcaa.firebaseio.com/subscriptions.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(newSub)
+    })
+    .then(function(res){
+      if(res.ok){
+        displayConfirmationNotification();
+      }
+    })
+    .catch(function(err){
+      console.log(err)
+    })
+    })
+}
+
 function askForNotificationPermission(){
   Notification.requestPermission(function(result){
     console.log('User choice', result);
     if(result !== 'granted'){
       console.log('No notification permissions granted');
     } else {
-      displayConfirmationNotification();
+      configurePushSub();
     }
   });
 }
 
-if('Notification' in window){
+if('Notification' in window && 'serviceWorker' in navigator){
   for (let i = 0; i < enableNotificationsButtons.length; i++) {
     enableNotificationsButtons[i].style.display = 'inline-block';
     enableNotificationsButtons[i].addEventListener('click', askForNotificationPermission);
     
   }
 }
+
