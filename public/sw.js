@@ -1,8 +1,8 @@
 // REFERENCE: 
 // * https://angular.io/guide/service-worker-config
 
-var CACHE_STATIC_NAME = 'static-v6';
-var CACHE_DYNAMIC_NAME = 'dynamic-v6';
+var CACHE_STATIC_NAME = 'static-v8';
+var CACHE_DYNAMIC_NAME = 'dynamic-v8';
 
 var STATIC_FILES = [
     '/',
@@ -74,7 +74,7 @@ function isInArray(string, array){
 
 // Cache, then populate with network
 self.addEventListener('fetch', function(event) {
-    var url = 'https://httpbin.org/get';
+    var url = 'https://pwagram-efcaa.firebaseio.com/posts';
     // Cache, then network part for a specific url where we get our feed
     if(event.request.url.indexOf(url) > -1){
         event.respondWith(
