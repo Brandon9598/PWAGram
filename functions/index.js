@@ -1,6 +1,7 @@
 var functions = require('firebase-functions');
 var admin = require('firebase-admin');
 var cors = require('cors')({origin: true});
+var webpush = require('web-push');
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -22,11 +23,33 @@ exports.storePostData = functions.https.onRequest(function(request, response) {
         image: request.body.image
       })
         .then(function() {
+          webpush.setVapidDetails('mailto:brandon9598@gmail.com', 
+            'BAFLzbBdZbMXrOeQA4CwwbfUKe8g1u4MkMrO-46uehDP2vUzcdNcqzQUyLqcrtwHzoKSAGS_LobRXPRqPFrDtgQ', 
+            'QrMbpPLr9Ir_LPv7wjGhSYYgox90xUGqH0Ki7tL7V4I');
+            return admin.database().ref('subscriptions').once('value');
+        })
+        .then(function(subscriptions){
+          subscriptions.forEach(function(sub){
+            var pushConfig = {
+              endpoint: sub.val().endpoint,
+              keys: {
+                auth: sub.val().keys.auth,
+                p256dh: sub.val().keys.p256dh
+              }
+            };
+
+            webpush.sendNotification(pushConfig, JSON.stringify({title: 'New Post', content: 'New Post Added'}))
+              .catch(function(err){
+                console.log(err)
+              })
+          })
+          
           response.status(201).json({message: 'Data stored', id: request.body.id});
         })
         .catch(function(err) {
           response.status(500).json({error: err});
         });
     });
-   });
-   
+});
+
+
