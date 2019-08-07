@@ -33,7 +33,14 @@ function displayConfirmationNotification(){
       dir: 'ltr',
       lang: 'en-US', // BCP 47
       vibrate: [100, 50, 200], // Vibration pause vibration
-      badge: '/src/images/icons/app-icon-96x96.png'
+      badge: '/src/images/icons/app-icon-96x96.png',
+      // Change how much you spam the user
+      tag: 'confirm-notification', 
+      renotify: true,
+      actions: [
+        {action: 'confirm', title: 'Okay', icon: '/src/images/icons/app-icon-96x96.png'},
+        {action: 'cancel', title: 'Cancel', icon: '/src/images/icons/app-icon-96x96.png'}
+      ],
     };
 
     navigator.serviceWorker.ready
