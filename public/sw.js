@@ -3,8 +3,8 @@
 importScripts('/src/js/idb.js');
 importScripts('/src/js/utility.js');
 
-var CACHE_STATIC_NAME = 'static-v18';
-var CACHE_DYNAMIC_NAME = 'dynamic-v17';
+var CACHE_STATIC_NAME = 'static-v23';
+var CACHE_DYNAMIC_NAME = 'dynamic-v23';
 var STATIC_FILES = [
   '/',
   '/index.html',
@@ -240,10 +240,10 @@ self.addEventListener('notificationclick', function(event){
           });
 
           if(client !== undefined){
-            client.navigate('http://localhost:5000');
+            client.navigate(notification.data.url);
             client.focus();
           } else {
-            clients.openWindow('http://localhost:5000');
+            clients.openWindow(notification.data.url);
           }
           notification.close();
         })
@@ -259,7 +259,7 @@ self.addEventListener('notificationclose', function(event){
 self.addEventListener('push', function(event){
   console.log("Push notification recieved", event);
 
-  var data = {title: 'New!', content: 'Something new happened!'};
+  var data = {title: 'New!', content: 'Something new happened!', openUrl: '/'};
   if(event.data){
     data = JSON.parse(event.data.text());
   }
@@ -268,6 +268,9 @@ self.addEventListener('push', function(event){
     body: data.content,
     icon: 'app-icon-96x96.png', 
     badge: 'app-icon-96x96.png',
+    data: {
+      url: data.openUrl
+    }
   };
 
   event.waitUntil(

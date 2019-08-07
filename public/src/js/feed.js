@@ -144,7 +144,7 @@ function sendData(){
   })
     .then(function(res){
       console.log("Send data", res)
-      updateUI(res);
+      // updateUI(res);
     })
 }
 
