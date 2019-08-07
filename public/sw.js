@@ -1,8 +1,8 @@
 // REFERENCE: 
 // * https://angular.io/guide/service-worker-config
 
-var CACHE_STATIC_NAME = 'static-v4';
-var CACHE_DYNAMIC_NAME = 'dynamic-v4';
+var CACHE_STATIC_NAME = 'static-v5';
+var CACHE_DYNAMIC_NAME = 'dynamic-v5';
 
 self.addEventListener('install', function(event) {
   console.log('[Service Worker] Installing Service Worker ...', event);
@@ -83,7 +83,10 @@ self.addEventListener('fetch', function(event) {
                     .catch(function(err) {
                         return caches.open(CACHE_STATIC_NAME)
                         .then(function(cache) {
-                            return cache.match('/offline.html');
+                            // Using routing for specific cache strategies
+                            if(event.request.url.indexOf('/help')){
+                                return cache.match('/offline.html');
+                            }
                         });
                     });
                 }
