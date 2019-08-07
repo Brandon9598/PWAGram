@@ -232,6 +232,22 @@ self.addEventListener('notificationclick', function(event){
     notification.close();
   } else {
     console.log(action)
+    event.waitUntil(
+      clients.matchAll()
+        .then(function(clis){
+          var client = clis.find(function(c){
+            return c.visibilityState == 'visible';
+          });
+
+          if(client !== undefined){
+            client.navigate('http://localhost:5000');
+            client.focus();
+          } else {
+            clients.openWindow('http://localhost:5000');
+          }
+          notification.close();
+        })
+    );
     notification.close();
   }
 })
