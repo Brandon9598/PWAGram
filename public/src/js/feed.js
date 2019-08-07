@@ -100,7 +100,7 @@ function updateUI(data){
   }
 }
 
-var url = 'https://pwagram-efcaa.firebaseio.com/posts.json'
+var url = 'https://pwagram-efcaa.firebaseio.com/posts.json';
 var networkDataReceived = false;
 
 fetch(url)
@@ -158,25 +158,25 @@ form.addEventListener('submit', function(event){
 
   closeCreatePostModal();
 
-  if('serviceWoker' in navigator && 'SyncManager' in window){
+  if ('serviceWorker' in navigator && 'SyncManager' in window) {
     navigator.serviceWorker.ready
-      .then(function(sw){
+      .then(function(sw) {
         var post = {
           id: new Date().toISOString(),
           title: titleInput.value,
           location: locationInput.value
         };
         writeData('sync-posts', post)
-          .then(function(){
+          .then(function() {
             return sw.sync.register('sync-new-posts');
           })
-          .then(function(){
+          .then(function() {
             var snackbarContainer = document.querySelector('#confirmation-toast');
-            var data = {message: 'Your post was saved for syncing!'};
+            var data = {message: 'Your Post was saved for syncing!'};
             snackbarContainer.MaterialSnackbar.showSnackbar(data);
           })
-          .catch(function(err){
-            console.log(err)
+          .catch(function(err) {
+            console.log(err);
           });
       });
   } else {
